@@ -1,0 +1,159 @@
+{
+  "info": {
+    "name": "VoipFácil API - Collection",
+    "_postman_id": "voipfacil-collection",
+    "description": "Coleção para testar endpoints da API VoipFácil. Configure a variável de ambiente `baseUrl` (ex: http://localhost:3000) e `apiKey` quando aplicável.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "apiKey", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "trunkId", "value": "" },
+    { "key": "callId", "value": "" },
+    { "key": "providerId", "value": "" },
+    { "key": "providerIds", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Root & Health",
+      "item": [
+        {
+          "name": "GET / (root)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": ["/"] } }
+        },
+        {
+          "name": "GET /health",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] } }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "GET /api/auth/google (OAuth) — abrir no browser",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/auth/google", "host": ["{{baseUrl}}"], "path": ["api","auth","google"] }, "description": "Inicia fluxo OAuth Google. Use o navegador para autorizar e completar o callback." }
+        },
+        {
+          "name": "GET /api/auth/google/callback (OAuth callback) — browser",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/auth/google/callback", "host": ["{{baseUrl}}"], "path": ["api","auth","google","callback"] }, "description": "Callback do OAuth — geralmente redirecionado pelo Google. Não é facilmente testável direto pelo Postman sem simular OAuth." }
+        },
+        {
+          "name": "GET /api/auth/me",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api","auth","me"] }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /api/auth/profile",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "x-api-key", "value": "{{apiKey}}" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Teste API\",\n  \"avatar\": \"https://example.com/avatar.png\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/profile", "host": ["{{baseUrl}}"], "path": ["api","auth","profile"] }
+          }
+        },
+        {
+          "name": "POST /api/auth/logout",
+          "request": { "method": "POST", "header": [ { "key": "x-api-key", "value": "{{apiKey}}" } ], "url": { "raw": "{{baseUrl}}/api/auth/logout", "host": ["{{baseUrl}}"], "path": ["api","auth","logout"] } }
+        },
+        {
+          "name": "POST /api/auth/regenerate-api-key",
+          "request": { "method": "POST", "header": [ { "key": "x-api-key", "value": "{{apiKey}}" } ], "url": { "raw": "{{baseUrl}}/api/auth/regenerate-api-key", "host": ["{{baseUrl}}"], "path": ["api","auth","regenerate-api-key"] } }
+        }
+      ]
+    },
+    {
+      "name": "Trunks",
+      "item": [
+        {
+          "name": "POST /api/trunks (create)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "x-api-key", "value": "{{apiKey}}" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Tronco Teste\",\n  \"sipUri\": \"sip:exemplo.sip\",\n  \"sipUsername\": \"1001\",\n  \"sipPassword\": \"senha123\",\n  \"provider\": \"Custom\",\n  \"isPrimary\": true,\n  \"priority\": 10\n}" },
+            "url": { "raw": "{{baseUrl}}/api/trunks", "host": ["{{baseUrl}}"], "path": ["api","trunks"] }
+          }
+        },
+        {
+          "name": "GET /api/trunks",
+          "request": { "method": "GET", "header": [ { "key": "x-api-key", "value": "{{apiKey}}" } ], "url": { "raw": "{{baseUrl}}/api/trunks", "host": ["{{baseUrl}}"], "path": ["api","trunks"] } }
+        },
+        {
+          "name": "GET /api/trunks/:id",
+          "request": { "method": "GET", "header": [ { "key": "x-api-key", "value": "{{apiKey}}" } ], "url": { "raw": "{{baseUrl}}/api/trunks/{{trunkId}}", "host": ["{{baseUrl}}"], "path": ["api","trunks","{{trunkId}}"] } }
+        },
+        {
+          "name": "PUT /api/trunks/:id",
+          "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "x-api-key", "value": "{{apiKey}}" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Tronco Atualizado\",\n  \"priority\": 5\n}" }, "url": { "raw": "{{baseUrl}}/api/trunks/{{trunkId}}", "host": ["{{baseUrl}}"], "path": ["api","trunks","{{trunkId}}"] } }
+        },
+        {
+          "name": "DELETE /api/trunks/:id",
+          "request": { "method": "DELETE", "header": [ { "key": "x-api-key", "value": "{{apiKey}}" } ], "url": { "raw": "{{baseUrl}}/api/trunks/{{trunkId}}", "host": ["{{baseUrl}}"], "path": ["api","trunks","{{trunkId}}"] } }
+        },
+        {
+          "name": "POST /api/trunks/:id/test",
+          "request": { "method": "POST", "header": [ { "key": "x-api-key", "value": "{{apiKey}}" } ], "url": { "raw": "{{baseUrl}}/api/trunks/{{trunkId}}/test", "host": ["{{baseUrl}}"], "path": ["api","trunks","{{trunkId}}","test"] } }
+        },
+        {
+          "name": "GET /api/trunks/:id/stats",
+          "request": { "method": "GET", "header": [ { "key": "x-api-key", "value": "{{apiKey}}" } ], "url": { "raw": "{{baseUrl}}/api/trunks/{{trunkId}}/stats", "host": ["{{baseUrl}}"], "path": ["api","trunks","{{trunkId}}","stats"] } }
+        }
+      ]
+    },
+    {
+      "name": "Calls",
+      "item": [
+        {
+          "name": "POST /api/calls/initiate",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "x-api-key", "value": "{{apiKey}}" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"to\": \"5591999000000\",\n  \"from\": \"1001\",\n  \"recordCall\": true,\n  \"enableTranscription\": false,\n  \"enableSentimentAnalysis\": false\n}" },
+            "url": { "raw": "{{baseUrl}}/api/calls/initiate", "host": ["{{baseUrl}}"], "path": ["api","calls","initiate"] }
+          }
+        },
+        {
+          "name": "GET /api/calls",
+          "request": { "method": "GET", "header": [ { "key": "x-api-key", "value": "{{apiKey}}" } ], "url": { "raw": "{{baseUrl}}/api/calls", "host": ["{{baseUrl}}"], "path": ["api","calls"] } }
+        },
+        {
+          "name": "GET /api/calls/stats",
+          "request": { "method": "GET", "header": [ { "key": "x-api-key", "value": "{{apiKey}}" } ], "url": { "raw": "{{baseUrl}}/api/calls/stats", "host": ["{{baseUrl}}"], "path": ["api","calls","stats"] } }
+        },
+        {
+          "name": "GET /api/calls/:id",
+          "request": { "method": "GET", "header": [ { "key": "x-api-key", "value": "{{apiKey}}" } ], "url": { "raw": "{{baseUrl}}/api/calls/{{callId}}", "host": ["{{baseUrl}}"], "path": ["api","calls","{{callId}}"] } }
+        },
+        {
+          "name": "POST /api/calls/:id/hangup",
+          "request": { "method": "POST", "header": [ { "key": "x-api-key", "value": "{{apiKey}}" } ], "url": { "raw": "{{baseUrl}}/api/calls/{{callId}}/hangup", "host": ["{{baseUrl}}"], "path": ["api","calls","{{callId}}","hangup"] } }
+        }
+      ]
+    },
+    {
+      "name": "Providers",
+      "item": [
+        {
+          "name": "GET /api/providers/recommendations",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/providers/recommendations", "host": ["{{baseUrl}}"], "path": ["api","providers","recommendations"] } }
+        },
+        {
+          "name": "GET /api/providers/compare?ids=",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/providers/compare?ids={{providerIds}}", "host": ["{{baseUrl}}"], "path": ["api","providers","compare"], "query": [ { "key": "ids", "value": "{{providerIds}}" } ] } }
+        },
+        {
+          "name": "GET /api/providers/:id",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/providers/{{providerId}}", "host": ["{{baseUrl}}"], "path": ["api","providers","{{providerId}}"] } }
+        }
+      ]
+    }
+  ]
+}
