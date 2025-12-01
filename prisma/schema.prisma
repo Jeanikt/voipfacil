@@ -1,3 +1,4 @@
+// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -62,6 +63,7 @@ model Trunk {
   failedCalls   Int      @default(0)
   lastError     String?
   lastErrorAt   DateTime?
+  lastTestedAt  DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -80,17 +82,17 @@ model Call {
   externalId          String?   @unique
   from                String
   to                  String
-  direction           String    @default("outbound")
-  status              String    @default("initiated")
+  direction           CallDirection @default(OUTBOUND)
+  status              CallStatus @default(INITIATED)
   duration            Int?
   billableDuration    Int?
   recordingUrl        String?
   transcription       String?   @db.Text
   sentiment           String?
   sentimentScore      Float?
-  cost                Decimal   @default(0) @db.Decimal(10, 4)
-  markup              Decimal   @default(0) @db.Decimal(10, 4)
-  totalCharge         Decimal   @default(0) @db.Decimal(10, 4)
+  cost                Float     @default(0)
+  markup              Float     @default(0)
+  totalCharge         Float     @default(0)
   errorMessage        String?
   metadata            Json?
   createdAt           DateTime  @default(now())
@@ -108,11 +110,11 @@ model Call {
 
 model Provider {
   id            String   @id @default(uuid())
-  name          String   @unique
+  name          String
   plan          String
-  precoMensal   Decimal  @db.Decimal(10, 2)
-  tarifaFixo    Decimal  @db.Decimal(10, 4)
-  tarifaMovel   Decimal  @db.Decimal(10, 4)
+  precoMensal   Float
+  tarifaFixo    Float
+  tarifaMovel   Float
   canais        Int
   link          String
   features      String[]
@@ -122,6 +124,7 @@ model Provider {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  @@unique([name, plan])
   @@index([precoMensal])
   @@map("providers")
 }
@@ -129,10 +132,10 @@ model Provider {
 model Billing {
   id              String   @id @default(uuid())
   userId          String
-  amount          Decimal  @db.Decimal(10, 2)
+  amount          Float
   description     String
-  type            String   @default("call")
-  status          String   @default("pending")
+  type            BillingType @default(CALL)
+  status          BillingStatus @default(PENDING)
   paymentMethod   String?
   transactionId   String?  @unique
   paidAt          DateTime?
@@ -162,4 +165,35 @@ model AuditLog {
   @@index([userId, createdAt])
   @@index([action])
   @@map("audit_logs")
+}
+
+enum CallDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum CallStatus {
+  INITIATED
+  RINGING
+  ANSWERED
+  COMPLETED
+  FAILED
+  BUSY
+  NO_ANSWER
+  CANCELLED
+}
+
+enum BillingType {
+  CALL
+  MONTHLY
+  SETUP
+  REFUND
+}
+
+enum BillingStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
 }

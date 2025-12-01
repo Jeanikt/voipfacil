@@ -1,3 +1,4 @@
+# docker-compose.yml
 version: '3.8'
 
 services:
@@ -13,20 +14,31 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - voipfacil-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U voipfacil -d voipfacil"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   redis:
     image: redis:7-alpine
     container_name: voipfacil-redis
     restart: unless-stopped
-    command: redis-server --requirepass RedisVoip2025!Dev
+    command: redis-server --requirepass RedisVoip2025!Dev --appendonly yes
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
       - voipfacil-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   adminer:
     image: adminer:latest
@@ -36,6 +48,8 @@ services:
       - "8080:8080"
     networks:
       - voipfacil-network
+    depends_on:
+      - postgres
 
   redis-insight:
     image: redislabs/redisinsight:latest
@@ -47,6 +61,8 @@ services:
       - redis_insight_data:/db
     networks:
       - voipfacil-network
+    depends_on:
+      - redis
 
 volumes:
   postgres_data:

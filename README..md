@@ -68,7 +68,7 @@ Plataforma brasileira para integração facilitada de VoIP com IA, permitindo qu
 
 ```powershell
 # 1. Clone o repositório
-git clone https://github.com/SEU_USUARIO/voipfacil.git
+git clone https://github.com/Jeanikt/voipfacil.git
 cd voipfacil
 
 # 2. Execute o script de setup (PowerShell como Administrador)

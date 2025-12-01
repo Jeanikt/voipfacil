@@ -14,11 +14,12 @@ export interface GoogleProfile {
   photos: { value: string }[];
 }
 
+// Extensão do namespace Express para incluir nosso tipo de usuário
 declare global {
   namespace Express {
     interface User extends AuthenticatedUser {}
-    interface Request {
-      user?: AuthenticatedUser;
-    }
   }
 }
+
+// Isso força o TypeScript a tratar este arquivo como um módulo
+export {};

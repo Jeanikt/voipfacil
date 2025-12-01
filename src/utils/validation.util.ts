@@ -1,10 +1,11 @@
-import { ZodError } from "zod";
+// src/utils/validation.ts
+import { ZodError } from 'zod';
 
-export function formatZodError(error: ZodError): Record<string, string[]> {
+export const formatZodError = (error: ZodError): Record<string, string[]> => {
   const formattedErrors: Record<string, string[]> = {};
 
   error.errors.forEach((err) => {
-    const path = err.path.join(".");
+    const path = err.path.join('.');
     if (!formattedErrors[path]) {
       formattedErrors[path] = [];
     }
@@ -12,32 +13,33 @@ export function formatZodError(error: ZodError): Record<string, string[]> {
   });
 
   return formattedErrors;
-}
+};
 
-export function isBrazilianPhone(phone: string): boolean {
-  const cleanPhone = phone.replace(/\D/g, "");
+export const isBrazilianPhone = (phone: string): boolean => {
+  const cleanPhone = phone.replace(/\D/g, '');
   return /^(55)?\d{2}9?\d{8}$/.test(cleanPhone);
-}
+};
 
-export function formatBrazilianPhone(phone: string): string {
-  const clean = phone.replace(/\D/g, "");
+export const formatBrazilianPhone = (phone: string): string => {
+  const clean = phone.replace(/\D/g, '');
 
   if (clean.length === 11) {
     return `+55${clean}`;
   }
-  if (clean.length === 13 && clean.startsWith("55")) {
+  if (clean.length === 13 && clean.startsWith('55')) {
     return `+${clean}`;
   }
 
   return phone;
-}
+};
 
-export function validateCNPJ(cnpj: string): boolean {
-  cnpj = cnpj.replace(/\D/g, "");
+export const validateCNPJ = (cnpj: string): boolean => {
+  cnpj = cnpj.replace(/\D/g, '');
 
   if (cnpj.length !== 14) return false;
   if (/^(\d)\1+$/.test(cnpj)) return false;
 
+  // Algoritmo de validação de CNPJ
   let size = cnpj.length - 2;
   let numbers = cnpj.substring(0, size);
   const digits = cnpj.substring(size);
@@ -66,4 +68,4 @@ export function validateCNPJ(cnpj: string): boolean {
   if (result !== parseInt(digits.charAt(1))) return false;
 
   return true;
-}
+};
