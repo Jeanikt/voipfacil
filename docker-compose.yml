@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: voipfacil-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: voipfacil
+      POSTGRES_PASSWORD: VoipF@cil2025!Dev
+      POSTGRES_DB: voipfacil
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - voipfacil-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: voipfacil-redis
+    restart: unless-stopped
+    command: redis-server --requirepass RedisVoip2025!Dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - voipfacil-network
+
+  adminer:
+    image: adminer:latest
+    container_name: voipfacil-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - voipfacil-network
+
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    container_name: voipfacil-redis-insight
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    volumes:
+      - redis_insight_data:/db
+    networks:
+      - voipfacil-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  redis_insight_data:
+
+networks:
+  voipfacil-network:
+    driver: bridge

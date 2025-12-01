@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  name            String?
+  avatar          String?
+  googleId        String?   @unique
+  apiKey          String    @unique
+  isActive        Boolean   @default(true)
+  lgpdConsent     Boolean   @default(false)
+  lgpdConsentDate DateTime?
+  lastLoginAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  trunks          Trunk[]
+  calls           Call[]
+  billings        Billing[]
+  sessions        Session[]
+
+  @@index([email])
+  @@index([googleId])
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("sessions")
+}
+
+model Trunk {
+  id            String   @id @default(uuid())
+  userId        String
+  name          String
+  sipUri        String
+  sipUsername   String
+  sipPassword   String
+  provider      String?
+  isActive      Boolean  @default(true)
+  isPrimary     Boolean  @default(false)
+  priority      Int      @default(0)
+  maxChannels   Int      @default(5)
+  currentCalls  Int      @default(0)
+  totalCalls    Int      @default(0)
+  failedCalls   Int      @default(0)
+  lastError     String?
+  lastErrorAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  calls         Call[]
+
+  @@index([userId])
+  @@index([priority])
+  @@map("trunks")
+}
+
+model Call {
+  id                  String    @id @default(uuid())
+  userId              String
+  trunkId             String
+  externalId          String?   @unique
+  from                String
+  to                  String
+  direction           String    @default("outbound")
+  status              String    @default("initiated")
+  duration            Int?
+  billableDuration    Int?
+  recordingUrl        String?
+  transcription       String?   @db.Text
+  sentiment           String?
+  sentimentScore      Float?
+  cost                Decimal   @default(0) @db.Decimal(10, 4)
+  markup              Decimal   @default(0) @db.Decimal(10, 4)
+  totalCharge         Decimal   @default(0) @db.Decimal(10, 4)
+  errorMessage        String?
+  metadata            Json?
+  createdAt           DateTime  @default(now())
+  answeredAt          DateTime?
+  completedAt         DateTime?
+
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trunk               Trunk     @relation(fields: [trunkId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([trunkId])
+  @@index([status])
+  @@map("calls")
+}
+
+model Provider {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  plan          String
+  precoMensal   Decimal  @db.Decimal(10, 2)
+  tarifaFixo    Decimal  @db.Decimal(10, 4)
+  tarifaMovel   Decimal  @db.Decimal(10, 4)
+  canais        Int
+  link          String
+  features      String[]
+  isActive      Boolean  @default(true)
+  rating        Float?   @default(0)
+  reviews       Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([precoMensal])
+  @@map("providers")
+}
+
+model Billing {
+  id              String   @id @default(uuid())
+  userId          String
+  amount          Decimal  @db.Decimal(10, 2)
+  description     String
+  type            String   @default("call")
+  status          String   @default("pending")
+  paymentMethod   String?
+  transactionId   String?  @unique
+  paidAt          DateTime?
+  refundedAt      DateTime?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([status])
+  @@map("billings")
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  userId        String?
+  action        String
+  resource      String?
+  resourceId    String?
+  details       Json?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([action])
+  @@map("audit_logs")
+}
